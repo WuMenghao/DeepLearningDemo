@@ -134,5 +134,5 @@ Temporary Items
 .apdisk
 
 # ignore directory
-.chapter02/read
-.chapter01/save
+chapter02/read
+chapter01/save
