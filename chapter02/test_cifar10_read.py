@@ -8,7 +8,7 @@ Created on Wed Nov  6 14:42:24 2019
 import tensorflow as tf
 import os
 import cifar10_input
-import scipy
+import scipy.misc as misc
 
 def inputs_origin(data_dir):
     # 读入训练图
@@ -42,4 +42,5 @@ if __name__ == '__main__':
             # one image
             image_array = sess.run(reshape_image)
             # save image
-            scipy.misc.imsave('cifar10_data/raw/%d.jpg' % i,image_array)
+            # misc.toimage(image_array).save('cifar10_data/raw/%d.jpg' % i)
+            misc.imsave('cifar10_data/raw/%d.jpg' % i,image_array)
