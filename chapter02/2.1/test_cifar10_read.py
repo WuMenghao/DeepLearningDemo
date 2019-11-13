@@ -7,7 +7,7 @@ Created on Wed Nov  6 14:42:24 2019
 
 import tensorflow as tf
 import os
-import cifar10_input
+import chapter02.cifar10_input as cifar10_input
 import scipy.misc as misc
 
 def inputs_origin(data_dir):
@@ -28,19 +28,19 @@ def inputs_origin(data_dir):
 
 if __name__ == '__main__':
     # 读取图片队列
-    reshape_image=inputs_origin('cifar10_data/cifar-10-batches-bin')
+    reshape_image=inputs_origin('../cifar10_data/cifar-10-batches-bin')
     with tf.Session() as sess:
         # start_queue_runners
         threads = tf.train.start_queue_runners(sess=sess)
         # init variables
         sess.run(tf.global_variables_initializer())
         # mkdir
-        if not os.path.exists('cifar10_data/raw/'):
-            os.makedirs('cifar10_data/raw/')
+        if not os.path.exists('../cifar10_data/raw/'):
+            os.makedirs('../cifar10_data/raw/')
         #保存30张图片
         for i in range(30):
             # one image
             image_array = sess.run(reshape_image)
             # save image
             # misc.toimage(image_array).save('cifar10_data/raw/%d.jpg' % i)
-            misc.imsave('cifar10_data/raw/%d.jpg' % i,image_array)
+            misc.imsave('../cifar10_data/raw/%d.jpg' % i,image_array)
