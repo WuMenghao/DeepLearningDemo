@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
-import tensorflow as tf
-from chapter02 import cifar10
-from chapter02 import cifar10_input
+import datetime
 import time
+import tensorflow as tf
+from chapter02.s_chap2 import cifar10
 
-FLAGS = tf.app.flags.FLAGS
+FLAGS = cifar10.FLAGS
 
 # Basic model parameters.
-tf.app.flags.DEFINE_integer('batch_size', 128,
-                            """Number of images to process in a batch.""")
-tf.app.flags.DEFINE_string('data_dir', '/tmp/cifar10_data',
-                           """Path to the CIFAR-10 data directory.""")
-tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
+tf.app.flags.DEFINE_string('train_dir', './cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
 tf.app.flags.DEFINE_integer('max_steps', 1000000,
@@ -21,8 +17,8 @@ tf.app.flags.DEFINE_boolean('log_device_placement', False,
 tf.app.flags.DEFINE_integer('log_frequency', 10,
                             """How often to log results to the console.""")
 
-NUM_CLASSES = cifar10_input.NUM_CLASSES
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = cifar10_input.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
+NUM_CLASSES = 10
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
 
 NUM_EPOCHS_PER_DECAY = 350.0  # 减小学习率后的epochs
 INITIAL_LEARNING_RATE = 0.1  # 初始学习率
@@ -39,8 +35,8 @@ def interence(image):
         kernel = cifar10._variable_with_weight_decay('weights',
                                                      shape=[5, 5, 3, 64],
                                                      stddev=5e-2, wd=0.0)
-        conv = tf.nn.conv2d(image, kernel, [1, 1, 1, 1], padding='SAMW')
-        biases = cifar10._variable_on_cpu('biases', [64], tf.constant_initializer(0, 0))
+        conv = tf.nn.conv2d(image, kernel, [1, 1, 1, 1], padding='SAME')
+        biases = cifar10._variable_on_cpu('biases', [64], tf.constant_initializer(0.0))
         pre_activation = tf.nn.bias_add(conv, biases)
         conv1 = tf.nn.relu(pre_activation, name=scope.name)
         # summary是将输出报告到TensorBoard
@@ -98,7 +94,7 @@ def interence(image):
     # 全连接+Softmax分类
     # 这里不显示进行Softmax变换,只输出变换前的Logit(即变量softmax_linear)
     with tf.variable_scope('softmax_linear') as scope:
-        weights = cifar10._variable_with_weight_decay('weights', [384, NUM_CLASSES],
+        weights = cifar10._variable_with_weight_decay('weights', [192, NUM_CLASSES],
                                                       stddev=1 / 192.0, wd=0.0)
         biases = cifar10._variable_on_cpu('biases', [NUM_CLASSES],
                                           tf.constant_initializer(0.0))
@@ -131,7 +127,7 @@ def _add_loss_summaries(total_loss):
     loss_averages_op = loss_averages.apply(losses + [total_loss])
     # 绑定scalar summary
     for l in losses + [total_loss]:
-        tf.summary.scalar(l.op.name, ' (raw)', l)
+        tf.summary.scalar(l.op.name + ' (raw)', l)
         tf.summary.scalar(l.op.name, loss_averages.average(l))
     return loss_averages_op
 
@@ -187,6 +183,7 @@ def train():
         # 训练以更新模型
         train_op = _train(loss, global_step)
 
+        # 日志
         class _LoggerHook(tf.train.SessionRunHook):
             """Logs loss and runtime"""
 
@@ -201,3 +198,37 @@ def train():
             def after_run(self, run_context, run_values):
                 if self._step % FLAGS.log_frequency == 0:
                     current_time = time.time()
+                    duration = current_time - self._start_time
+                    self._start_time = current_time
+
+                    loss_value = run_values.results
+                    examples_per_sec = FLAGS.log_frequency * FLAGS.batch_size / duration
+                    sec_per_batch = float(duration / FLAGS.log_frequency)
+
+                    format_str = ('%s: step %d, loss = %.2f (%.1f examples/sec; %.3f'
+                                  'sec/batch)')
+                    print(
+                        format_str % (datetime.datetime.now(), self._step,loss_value,
+                                      examples_per_sec, sec_per_batch))
+
+        # 进行监督学习
+        with tf.train.MonitoredTrainingSession(
+                checkpoint_dir=FLAGS.train_dir,
+                hooks=[tf.train.StopAtStepHook(last_step=FLAGS.max_steps),
+                       tf.train.NanTensorHook(loss),
+                       _LoggerHook()],
+                config=tf.ConfigProto(
+                    log_device_placement=FLAGS.log_device_placement)) as mon_sess:
+            while not mon_sess.should_stop():
+                mon_sess.run(train_op)
+
+# tf主函数
+def main(arg=None):
+    cifar10.maybe_download_and_extract()
+    if tf.gfile.Exists(FLAGS.train_dir):
+        tf.gfile.DeleteRecursively(FLAGS.train_dir)
+    tf.gfile.MakeDirs(FLAGS.train_dir)
+    train()
+
+if __name__ == '__main__':
+    tf.app.run()

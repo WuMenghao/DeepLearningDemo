@@ -23,7 +23,7 @@ import os
 
 import tensorflow as tf
 
-import cifar10_input
+from chapter02 import cifar10
 
 
 class CIFAR10InputTest(tf.test.TestCase):
