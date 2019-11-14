@@ -208,7 +208,7 @@ def train():
                     format_str = ('%s: step %d, loss = %.2f (%.1f examples/sec; %.3f'
                                   'sec/batch)')
                     print(
-                        format_str % (datetime.datetime.now(), self._step,loss_value,
+                        format_str % (datetime.datetime.now(), self._step, loss_value,
                                       examples_per_sec, sec_per_batch))
 
         # 进行监督学习
@@ -222,6 +222,7 @@ def train():
             while not mon_sess.should_stop():
                 mon_sess.run(train_op)
 
+
 # tf主函数
 def main(arg=None):
     cifar10.maybe_download_and_extract()
@@ -229,6 +230,7 @@ def main(arg=None):
         tf.gfile.DeleteRecursively(FLAGS.train_dir)
     tf.gfile.MakeDirs(FLAGS.train_dir)
     train()
+
 
 if __name__ == '__main__':
     tf.app.run()
