@@ -5,3 +5,5 @@ __pycache__/
 *.tar.gz
 *.ckpt
 venv/
+train_dir/
+eval_dir/

@@ -178,23 +178,29 @@ def main(_):
 
     tf.logging.info('Evaluating %s' % checkpoint_path)
 
-    slim.evaluation.evaluate_once(
-        master=FLAGS.master,
-        checkpoint_path=checkpoint_path,
-        logdir=FLAGS.eval_dir,
-        num_evals=num_batches,
-        eval_op=list(names_to_updates.values()),
-        variables_to_restore=variables_to_restore)
+    # mask GPUs visible to the session so it falls back on CPU
+    # when you are training using GPU (case you have only one piece of GPU)
+    # you have to use this config to force your evaluation on CPU
+    config = tf.ConfigProto(device_count={'GPU':0})
 
-    # slim.evaluation.evaluation_loop(
+    # slim.evaluation.evaluate_once(
     #     master=FLAGS.master,
-    #     checkpoint_dir=FLAGS.checkpoint_path,
+    #     checkpoint_path=checkpoint_path,
     #     logdir=FLAGS.eval_dir,
     #     num_evals=num_batches,
     #     eval_op=list(names_to_updates.values()),
-    #     variables_to_restore=variables_to_restore,
-    #     eval_interval_secs=300
-    #     )
+    #     variables_to_restore=variables_to_restore)
+
+    slim.evaluation.evaluation_loop(
+        master=FLAGS.master,
+        checkpoint_dir=FLAGS.checkpoint_path,
+        logdir=FLAGS.eval_dir,
+        num_evals=num_batches,
+        eval_op=list(names_to_updates.values()),
+        variables_to_restore=variables_to_restore,
+        eval_interval_secs=300,
+        session_config=config
+        )
 
 
 if __name__ == '__main__':

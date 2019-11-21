@@ -6,6 +6,8 @@ python train_image_classifier.py ^
 --model_name=inception_v3 ^
 --checkpoint_path=satellite/pretrained/inception_v3.ckpt ^
 --checkpoint_exclude_scopes=InceptionV3/Logits,InceptionV3/AuxLogits ^
+:: if you just want pick some layers to train use this parameter,
+:: otherwise you will train all layers
 --trainable_scopes=InceptionV3/Logits,InceptionV3/AuxLogits ^
 --max_number_of_steps=100000 ^
 --batch_size=32 ^
