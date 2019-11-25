@@ -1,3 +1,4 @@
+:: 评估脚本
 python train_image_classifier.py ^
 --checkpoint_path=satellite/train_dir ^
 --eval_dir=satellite/eval_dir ^

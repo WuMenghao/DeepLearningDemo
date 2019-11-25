@@ -1,3 +1,4 @@
+:: 训练脚本
 python train_image_classifier.py ^
 --train_dir=satellite/train_dir ^
 --dataset_name=satellite ^
