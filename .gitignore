@@ -7,3 +7,4 @@ __pycache__/
 venv/
 train_dir/
 eval_dir/
+*.pb
