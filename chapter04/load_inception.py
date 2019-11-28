@@ -3,9 +3,8 @@
 from __future__ import print_function
 
 import numpy as np
-import scipy
+import cv2
 import tensorflow as tf
-import scipy.misc
 
 # with tf.Graph() as graph:
 # with tf.InteractiveSession(graph=graph) as sess:
@@ -21,10 +20,14 @@ CHANNEL = 139
 
 
 def save_image(img_array, img_name):
+    # with tf.gfile.Open(img_name, 'wb') as f:
+    #     image = tf.image.encode_jpeg(img_array)
+    #     f.write(image)
+    cv2.imwrite(img_name,img_array)
     print('Image saved: %s' % img_name)
 
 
-def rander_naive(sess, t_input, t_obj, img0, iter_n=20, step=0.1):
+def rander_naive(sess, t_input, t_obj, img0, iter_n=20, step=1):
     """
     生成原始DeepDream图片处理函数
     :param t_obj:
@@ -44,8 +47,9 @@ def rander_naive(sess, t_input, t_obj, img0, iter_n=20, step=0.1):
         g, score = sess.run([t_grad, t_score], {t_input: img})
         g /= g.std() + (1e-8)
         img += g * step
-        print('score(mean）＝%f' %(score))
+        print('score(mean）＝%f' % (score))
     save_image(img, 'naive.jpg')
+
 
 def gen_naive(graph, sess, t_input):
     """
@@ -62,6 +66,11 @@ def gen_naive(graph, sess, t_input):
 
 
 def load_inception(graph):
+    """
+    导入神经网络
+    :param graph:
+    :return:
+    """
     # (1)导入神经网络
     model_fn = 'tensorflow_inception_graph.pb'
     with tf.gfile.FastGFile('trained/tensorflow_inception_graph.pb', 'rb') as f:
@@ -90,7 +99,8 @@ def main(_):
             # 导入神经网络模型
             t_input, layers = load_inception(graph)
             # 生成原始DeepDream图片
-            gen_naive(graph=graph,sess=sess,t_input=t_input)
+            gen_naive(graph=graph, sess=sess, t_input=t_input)
+
 
 if __name__ == '__main__':
     tf.app.run()
