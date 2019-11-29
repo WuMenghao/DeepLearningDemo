@@ -3,7 +3,6 @@
 from __future__ import print_function
 
 import numpy as np
-import cv2
 import tensorflow as tf
 import scipy.misc
 
@@ -88,11 +87,9 @@ def render_multi_scale(sess, t_input, tensor, img0,
     save_image(img, 'result/multiscale_my.jpg')
 
 
-def load_inception(graph):
+def load_inception():
     """
     导入神经网络
-    :param graph: tensorflow graph
-    :return: t_input, layers
     """
     # (1)导入神经网络
     with tf.gfile.FastGFile('model/tensorflow_inception_graph.pb', 'rb') as f:
@@ -113,7 +110,7 @@ def main(_):
     with tf.Graph().as_default() as graph:
         with tf.InteractiveSession(graph=graph).as_default() as sess:
             # 导入神经网络模型
-            t_input= load_inception(graph)
+            t_input= load_inception()
             # (1)获取layer_output
             layer_output = graph.get_tensor_by_name(USED_LAYER_TENSOR_NAME)
             # (2)定义原始的图像噪声
