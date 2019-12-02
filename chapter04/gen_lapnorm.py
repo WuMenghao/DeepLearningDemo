@@ -2,6 +2,8 @@
 # Created by: WU MENGHAO
 # Created on: 2019/11/29
 
+from __future__ import print_function
+
 import numpy as np
 import scipy
 import tensorflow as tf
@@ -28,7 +30,7 @@ from functools import partial
 IMAGE_NET_MEAN = 117.0
 USED_LAYER = 'mixed4d_3x3_bottleneck_pre_relu'
 USED_LAYER_TENSOR_NAME = 'import/%s:0' % USED_LAYER
-CHANNEL = 139
+CHANNEL = 139 # 可以尝试不同的通道，如channel=99时
 
 k = np.float32([1, 4, 6, 4, 1])
 k = np.outer(k, k)
@@ -184,7 +186,7 @@ def render_laplace_normal(sess, input, tensor, image,
             g = lap_norm_func(g)
             img_temp += g * step
             print('.', end='')
-    save_image(img_temp, 'result/lapnorm_my.jpg')
+    save_image(img_temp, 'result/lapnorm_my_%s_%s.jpg' % (USED_LAYER, CHANNEL))
 
 
 def load_inception():
