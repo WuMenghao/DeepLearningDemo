@@ -1,5 +1,5 @@
 ## 5.1 深度学习中目标检测的原理
-####5.1.1  R-CNN的原理
+#### 5.1.1  R-CNN的原理
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 R-CNN的全称是Region-CN1叶， 它可以说是第一个成功地将深度学习应
 用到目标检测上的算法。 后面将要学习的Fast R-CNN、 Faster R-CNN全部
@@ -49,7 +49,7 @@ R-CNN的缺点是计算量太大。 在一张图片中，通过Selective Search�
 R-CNN在一定程度上改进了R-CNN计算量大的缺点，不仅速度变快不少，
 识别准确率也得到了提高。
 
-####5.1.2  SPPNet的原理
+#### 5.1.2  SPPNet的原理
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 在学习R-CNN的改进版FastR-CNN之前，作为前置知识，再必要学习
 SPPNet的原理。 SPPNet的英文全称是SpatialPyramid Pooling Convolutional 
@@ -106,7 +106,7 @@ SPPNet 只需要计算一次，因此SPPNet的效率比R-CNN高得多。
 R-CN1付日SPPNet的相同点在于，它们都遵循着提取候选框、提取特征、
 分类几个步骤。在提取特征后，官们都使用了SVM进行分类。
 
-####5.1.3  Fast R-CNN的原理
+#### 5.1.3  Fast R-CNN的原理
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 在SPPNet中，实际上特征提取和区域分类两个步骤还是分离的。 只是
 使用ROI池化层提取了每个区域的特征，在对这些区域分类时，还是使用
@@ -129,12 +129,71 @@ R-CN1付日SPPNet的相同点在于，它们都遵循着提取候选框、提取
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 再说框回归，框回归实际上要做的是对原始的检测框进行某种程度的
-“校；佳”。因为使用Selective Search 获得的框高时存在一定偏差。设通过
-Selective Search得到的框的四个参数为（x,y,w，的，冥中（x,y）表示框左上
-角的坐标位置，（w，的表示框的宽度和高度。 而真正的框的位置用
-(x',y’， w',h＇） 表示，框回归就是要学习钳
-$ y=f(x) $
-。真 w  n  w  n 
-，千一、J二两个数表示与尺度无关的平移量，而h旦，h车两个数
-w  h  w  n 
-表示的是和尺度无关的缩放量。
+“校准”。因为使用Selective Search 获得的框高时存在一定偏差。设通过
+Selective Search得到的框的四个参数为`(x,y,w,h)`，其中`(x,y)`表示框左上
+角的坐标位置，`(w,h)`表示框的宽度和高度。 而真正的框的位置用
+`(x',y',w',h')` 表示，框回归就是要学习参数`((x'-x)/w,(y'-y)/w,ln(w'/w),ln(h'/h)`
+，其中`(x'-x)/w`、`(y'-y)/w`两个数表示与尺度无关的平移量，而`ln(w'/w)`、`ln(h'/h)`
+两个数表示的是和尺度无关的缩放量。
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Fast R-CNN与SPPNet最大的区别就在于，FastR-CNN不再使用SVM
+进行分类，而是使用一个网络同时完成了提取特征、判断类别、 框回归三项
+工作。
+
+#### 5.1.4  Faster R-CNN的原理
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Fast R-CNN看似很完美了，但在FastR-CNN中还存在着一个高点尴尬的问题：他需
+要先使用`SelectiveSearch`提取框，这个方法比较慢，再时，检测一张图片，大部
+分时间不是花在计算神经网络分类上，而是花在`SelectiveSearch`提取框上!在
+Fast R-CNN升级版Faster R-CNN中，用`RPN`网络`(Region Proposal Network)`取代
+了SelectiveSearch ，不仅速度得到大大提高，而且还获得了更加精确的结果。
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+`RPN`还是需要先使用一个CNN网络对原始图片提取特征。为了方便读
+者理解，不妨设这个前置的CNN提取的特征为`5l×39×256`，即高为`51`、 宽
+为`39`、通道数为`256`。对这个卷积特征再进行一次卷积计算，保持宽、 高、
+通道不变，再次得到一个`5l×39×256`的特征。 为了方便叙述， 先来定义一个
+“位置”的概念：对于一个`51×39×256`的卷积特征，称它一共有`51×39`个
+“位置”。让新的卷积特征的每一个"位置"都"负责"原图中对应位置9种尺寸的
+框的检测，检测的目标是判断框中是否存在一个物体’因此共高`5l×39×9`个
+“框”。在FasterR-CNN的原论文中，将这些框都统一称为`“anchor”`。
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+`anchor`的9种尺寸如图5-7所示，它们的面积分别`128^2` `256^2`  `512^2`。
+每种面积又分为3 种长竟比，分别是`2 :  1` 、 `1 : 2`、 `1 :  1` 。 `anchor`
+的尺寸实际是属于可调的参数，不同任务可以选择不同的尺寸。
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+对于这`5l×39`个位置和`5l×39×9`个`anchor`，图5-8展示了接下来每个位
+置的计算步骤。设`k`为单个位置对应的`anchor`的个数，此时`k=9`。 首先使用
+一个`3×3`的渭动窗口，将每个位置转攘为一个统一的`256维的特征`，这个恃
+征对应了两部分的输出。 一部分表示该位置的`anchor`为物体的概率，这部
+分的总输出长度为`2×k`（一个`anchor`对应两个输出:是物体的概率＋不是物
+体的概率）。 另一部分为框回归，框回归的含义与FastR-CM词中一样，一个
+`anchor`对应`4个框回归参数`，因此框回归部分的总输出的长度为`4*k`。
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Faster R-CNN使用即N生成候选框后3 剩下的网络结构和FastR-CNN 
+中的结构一模一样。在训练过程中，需要训练两个网络，一个是RPN网络，
+一个是在得到框之后使用的分类网络。 通常的做法是交替训练，即在一个
+batch内，先训练RPN网络一次，再训练分类网络一次。
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<table>
+ <caption align="top">表5-1 R-CNN、 FastR-CNN、 FasterR-CNN的对比</caption> 
+<thead>
+    <td>项 目</td><td>R-CNN</td><td>Fast R-CNN</td><td>Faster R-CNN</td>
+</thead>
+<tbody>
+    <tr>
+        <td>提取候选框 </td><td>Selective Search </td><td>Selective Search </td><td>RPN 网络</td>
+    </tr>
+    <tr>
+        <td>提取特征 </td><td>卷积神经网络(CNN)</td><td colspan="2" rowspan="2">卷积神经网络＋ROI池化</td>
+    </tr>
+    <tr>
+        <td>特征分类 </td><td>支持向量机(SVM)</td>
+    </tr>
+</tbody>
+</table>
