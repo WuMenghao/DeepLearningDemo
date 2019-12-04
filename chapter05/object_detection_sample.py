@@ -17,18 +17,19 @@ from matplotlib import pyplot as plt
 
 matplotlib.use('TkAgg')
 # model to download
+MODEL_DIR = 'model/'
 MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017'
-MODEL_FILE = MODEL_NAME + '.tar.gz'
+MODEL_FILE = MODEL_DIR + MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 # Path to frozen detection graph. This is the actual model that is used for the object detection.
-PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
+PATH_TO_CKPT = MODEL_DIR + MODEL_NAME + '/frozen_inference_graph.pb'
 # List of the strings that is used to add correct label for each box.
 PATH_TO_LABELS = os.path.join('research/object_detection/data', 'mscoco_label_map.pbtxt')
 NUM_CLASSES = 90
 
 # For the sake of simplicity we will use only 2 images:
-PATH_TO_TEST_IMAGE_DIR = 'research/object_detection/test_images'
-TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGE_DIR, 'image{}.jpg'.format(i)) for i in range(1, 3)]
+PATH_TO_TEST_IMAGE_DIR = 'image_srcs/'
+TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGE_DIR,file_name) for file_name in os.listdir(PATH_TO_TEST_IMAGE_DIR)]
 IMAGE_SIZE = (12, 8)
 
 
@@ -61,11 +62,12 @@ def download_model():
         opener = urllib.request.URLopener()
         opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
     # 解压 frozen_inference_graph.pb 到当前目录
-    tar_file = tarfile.open(MODEL_FILE)
-    for file in tar_file.getmembers():
-        file_name = os.path.basename(file.name)
-        if 'frozen_inference_graph.pb' in file_name:
-            tar_file.extract(file, os.getcwd())  # 当前工作目录的绝对路径
+    if not os.path.exists(PATH_TO_CKPT):
+        tar_file = tarfile.open(MODEL_FILE)
+        for file in tar_file.getmembers():
+            file_name = os.path.basename(file.name)
+            if 'frozen_inference_graph.pb' in file_name:
+                tar_file.extract(file, MODEL_DIR)  # 当前工作目录的绝对路径
 
 
 def load_model():
@@ -129,7 +131,7 @@ def render_detection(graph, sess, category_index):
             use_normalized_coordinates=True,
             line_thickness=8)
         # show_image(image_np)
-        save_image('image%s.jpg' % i, image_np)
+        save_image('image_dists/image%s.jpg' % i, image_np)
 
 
 def main(_):
