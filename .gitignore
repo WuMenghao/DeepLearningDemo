@@ -8,3 +8,5 @@ venv/
 train_dir/
 eval_dir/
 *.pb
+slim.egg-info
+dist/
