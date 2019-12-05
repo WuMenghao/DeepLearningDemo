@@ -5,6 +5,7 @@
 *.ckpt
 *.pb
 *.mp4
+*.tar
 
 ### dirs ###
 .idea/
