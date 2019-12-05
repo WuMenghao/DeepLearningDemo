@@ -28,7 +28,7 @@ PATH_TO_LABELS = os.path.join('research/object_detection/data', 'mscoco_label_ma
 NUM_CLASSES = 90
 
 # For the sake of simplicity we will use only 2 images:
-PATH_TO_TEST_IMAGE_DIR = 'image_srcs/'
+PATH_TO_TEST_IMAGE_DIR = 'data/'
 TEST_IMAGE_PATHS = [os.path.join(PATH_TO_TEST_IMAGE_DIR,file_name) for file_name in os.listdir(PATH_TO_TEST_IMAGE_DIR)]
 IMAGE_SIZE = (12, 8)
 
@@ -131,7 +131,7 @@ def render_detection(graph, sess, category_index):
             use_normalized_coordinates=True,
             line_thickness=8)
         # show_image(image_np)
-        save_image('image_dists/image%s.jpg' % i, image_np)
+        save_image('result/image%s.jpg' % i, image_np)
 
 
 def main(_):
