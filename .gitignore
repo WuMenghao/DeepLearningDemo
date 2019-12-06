@@ -16,3 +16,5 @@ eval_dir/
 slim.egg-info
 dist/
 VOCtrainval_11-May-2012/
+build/
+object_detection.egg-info/

@@ -1,3 +1,6 @@
+:: workdir
+cd D:\workspace_py\deepLearningDemo\chapter05\s_chapter02
+
 :: gen pascal_train.record
 python create_pascal_tf_record.py ^
 --data_dir=VOCtrainval_11-May-2012/VOCdevkit/ ^
