@@ -24,7 +24,7 @@ DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 # Path to frozen detection graph. This is the actual model that is used for the object detection.
 PATH_TO_CKPT = MODEL_DIR + MODEL_NAME + '/frozen_inference_graph.pb'
 # List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = os.path.join('research/object_detection/data', 'mscoco_label_map.pbtxt')
+PATH_TO_LABELS = os.path.join('../research/object_detection/data', 'mscoco_label_map.pbtxt')
 NUM_CLASSES = 90
 
 # For the sake of simplicity we will use only 2 images:
