@@ -274,7 +274,7 @@ def train(create_tensor_dict_fn, create_model_fn, train_config, master, task,
     # Soft placement allows placing on CPU ops without GPU implementation. allow_soft_placement=True, log_device_placement=False,device_count={'GPU': 1}
     # gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.4, allow_growth=True)
     session_config = tf.ConfigProto(allow_soft_placement=True,
-                                    log_device_placement=False, device_count={'GPU': 0})
+                                    log_device_placement=False, device_count={'GPU': 1})
     # session_config.gpu_options.allow_growth = True
     # session_config.gpu_options.per_process_gpu_memory_fraction = 0.1
 
