@@ -8,6 +8,7 @@
 *.tar
 *.record
 *.pd
+*.tgz
 
 ### dirs ###
 .idea/
@@ -22,3 +23,6 @@ object_detection.egg-info/
 VOCdevkit/
 pretrained/
 export/
+lfw/
+20170512-110547/
+20180402-114759/
