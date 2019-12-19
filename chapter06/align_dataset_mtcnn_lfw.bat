@@ -2,8 +2,8 @@
 SET PYTHONPATH=D:\workspace_py\deepLearningDemo\chapter06\facenet\src
 
 python facenet/src/align/align_dataset_mtcnn.py ^
-facenet/datasets/lfw/raw ^
-facenet/datasets/lfw/lfw_mtcnnpy_160 ^
+datasets/lfw/raw ^
+datasets/lfw/lfw_mtcnnpy_160 ^
 --gpu_memory_fraction=0.5 ^
 --image_size=160 ^
 --margin=32 ^
