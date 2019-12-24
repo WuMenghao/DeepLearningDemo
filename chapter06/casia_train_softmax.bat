@@ -1,9 +1,9 @@
 :: 使用casia人年识别库训练MTCNN模型
-set PYTHONPATH = =D:\workspace_py\deepLearningDemo\chapter06\facenet\src
+set PYTHONPATH =D:\workspace_py\deepLearningDemo\chapter06\facenet\src
 
 python facenet/src/train_softmax.py ^
 --logs_base_dir=log/ ^
---models_base_dir=models/20170512-110547/ ^
+--models_base_dir=models/^
 --data_dir=datasets/casia/casia_maxpy_mtcnnpy_182 ^
 --image_size=160 ^
 --model_def=models.inception_resnet_v1 ^
@@ -19,4 +19,5 @@ python facenet/src/train_softmax.py ^
 --center_loss_factor=1e-2 ^
 --center_loss_alfa=0.9 ^
 --gpu_memory_fraction=0 ^
---lfw_pairs=facenet/data/pairs.txt
+--lfw_pairs=facenet/data/pairs.txt ^
+--pretrained_model=models\20191220-141154\model-20191220-141154.ckpt
