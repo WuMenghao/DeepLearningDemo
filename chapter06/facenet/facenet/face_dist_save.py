@@ -38,16 +38,15 @@ import pickle
 
 
 def main(args):
-
-    face_emb_list = []
-
     images = load_and_align_data(args.image_files, args.image_size, args.margin, args.gpu_memory_fraction)
+    save_face_emb_info(args.model, args.image_files, args.emb_file, images)
+
+
+def save_face_emb_info(model, image_files, emb_file, aligned_images):
     with tf.Graph().as_default():
-
         with tf.Session() as sess:
-
             # Load the model
-            facenet.load_model(args.model)
+            facenet.load_model(model)
 
             # Get input and output tensors
             images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
@@ -55,39 +54,15 @@ def main(args):
             phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
 
             # Run forward pass to calculate embeddings
-            feed_dict = {images_placeholder: images, phase_train_placeholder: False}
+            feed_dict = {images_placeholder: aligned_images, phase_train_placeholder: False}
             emb = sess.run(embeddings, feed_dict=feed_dict)
 
-            nrof_images = len(args.image_files)
-
-            #Save emb
-            emb_file = open(args.emb_file,'wb')
-            pickle.dump(emb,emb_file)
-
-            print('Images:')
-            for i in range(nrof_images):
-                print('%1d: %s' % (i, args.image_files[i]))
-            print('')
-            # Print distance matrix
-            print('Distance matrix')
-            print('    ', end='')
-            for i in range(nrof_images):
-                print('    %1d     ' % i, end='')
-            print('')
-            threshold = 1.19
-            for i in range(nrof_images):
-                print('%1d  ' % i, end='')
-                for j in range(nrof_images):
-                    emb1 = emb[i, :]
-                    emb2 = emb[j, :]
-                    dist = np.sqrt(np.sum(np.square(np.subtract(emb1, emb2))))
-                    predict_issame = np.less(dist, threshold)
-                    print('  %s  ' % predict_issame, end='')
-                print('')
+            # Save emb
+            emb_file = open(emb_file, 'wb')
+            pickle.dump(emb, emb_file)
 
 
 def load_and_align_data(image_paths, image_size, margin, gpu_memory_fraction):
-
     minsize = 20  # minimum size of face
     threshold = [0.6, 0.7, 0.7]  # three steps's threshold
     factor = 0.709  # scale factor
@@ -131,9 +106,10 @@ def parse_arguments(argv):
                         help='Margin for the crop around the bounding box (height, width) in pixels.', default=44)
     parser.add_argument('--gpu_memory_fraction', type=float,
                         help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0)
-    parser.add_argument('--emb_file',type=str,
+    parser.add_argument('--emb_file', type=str,
                         help='file to save emb of the specific person.', default='emb.pkl')
     return parser.parse_args(argv)
+
 
 if __name__ == '__main__':
     main(parse_arguments(sys.argv[1:]))
