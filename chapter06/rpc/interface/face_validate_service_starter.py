@@ -17,7 +17,7 @@ from thrift.protocol.TBinaryProtocol import TBinaryProtocol
 
 from chapter06.rpc.interface import face_validate_service
 from chapter06.rpc.interface.ttypes import *
-from facenet import face_dist_save, face_validate
+from facenet.src import face_dist_save, face_validate
 
 pp = pprint.PrettyPrinter(indent=2)
 host = 'localhost'
