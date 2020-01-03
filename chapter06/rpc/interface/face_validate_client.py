@@ -11,7 +11,7 @@ import os
 
 
 def call_remote_method(client, arg):
-    method = arg.mehtod
+    method = arg.method
     user_id = arg.user
     face_dir = arg.face_dir
 
@@ -23,10 +23,10 @@ def call_remote_method(client, arg):
 
     files = os.listdir(face_dir)
 
-    if method is 'saveFaceEmb':
+    if method == 'saveFaceEmb':
         return client.saveFaceEmb(faceImages=files, userId=user_id)
 
-    if method is 'validateFace':
+    if method == 'validateFace':
         return client.validateFace(faceImages=files, userId=user_id)
 
 
