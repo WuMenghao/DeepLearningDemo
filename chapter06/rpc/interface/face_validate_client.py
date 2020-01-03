@@ -5,9 +5,9 @@
 from thrift.transport import TSocket, TTransport
 from thrift.protocol.TBinaryProtocol import TBinaryProtocol
 from chapter06.rpc.interface import face_validate_service
-from chapter06.rpc.interface.ttypes import *
 import argparse
 import os
+import sys
 
 
 def call_remote_method(client, arg):
@@ -35,13 +35,14 @@ def init_client(host, port):
     transport = TTransport.TFramedTransport(socket)
     protocol = TBinaryProtocol(transport)
     client = face_validate_service.Client(protocol)
+    transport.open()
     return client
 
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--host', type=str, default='localhost', help='the remote host to connect')
-    parser.add_argument('--port', type=str, default='9090', help='the remote port to connect')
+    parser.add_argument('--port', type=int, default=9090, help='the remote port to connect')
     parser.add_argument('--method', type=str, help='the method port to call')
     parser.add_argument('--user', type=int, help='id of user')
     parser.add_argument('--face_dir', type=str, help='face image dir')
