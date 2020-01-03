@@ -33,7 +33,7 @@ import sys
 import os
 import argparse
 import facenet
-import align.detect_face
+import facenet.src.align.detect_face
 import pickle
 
 

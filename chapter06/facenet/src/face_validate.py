@@ -13,7 +13,7 @@ import sys
 import os
 import argparse
 import facenet
-import align.detect_face
+import facenet.src.align.detect_face as detect_face
 import pickle
 
 
@@ -72,14 +72,14 @@ def load_and_align_data(image_paths, image_size, margin, gpu_memory_fraction):
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_memory_fraction)
         sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
         with sess.as_default():
-            pnet, rnet, onet = align.detect_face.create_mtcnn(sess, None)
+            pnet, rnet, onet = detect_face.create_mtcnn(sess, None)
 
     nrof_samples = len(image_paths)
     img_list = [None] * nrof_samples
     for i in range(nrof_samples):
         img = misc.imread(os.path.expanduser(image_paths[i]))
         img_size = np.asarray(img.shape)[0:2]
-        bounding_boxes, _ = align.detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
+        bounding_boxes, _ = detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
         det = np.squeeze(bounding_boxes[0, 0:4])
         bb = np.zeros(4, dtype=np.int32)
         bb[0] = np.maximum(det[0] - margin / 2, 0)
