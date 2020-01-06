@@ -11,41 +11,22 @@ import sys
 import pprint
 import os
 
-from thrift.transport import TSocket
+from thrift.transport import TSocket, TTransport
 from thrift.server import TServer
-from thrift.protocol.TBinaryProtocol import TBinaryProtocol
+from thrift.protocol import TBinaryProtocol
 
 from chapter06.rpc.interface import face_validate_service
-from chapter06.rpc.interface.ttypes import *
 from facenet.src import face_dist_save, face_validate
 
 pp = pprint.PrettyPrinter(indent=2)
 host = 'localhost'
 port = 9090
-base_emb_dir = 'emb/'
-emb_file = 'emb.pkl'
-model = 'D:\workspace_py\deepLearningDemo\chapter06\models\20191224-152347'
+base_emb_dir = 'rpc/interface/emb/'
+emb_file_suffix = '.emb.pkl'
+model = 'D:/workspace_py/deepLearningDemo/chapter06/models/20191224-152347'
 
 
 class FaceValidateServiceHandler(face_validate_service.Iface):
-    def validateFace(self, faceImages, userId):
-        """
-        Parameters:
-         - faceImages
-         - userId
-
-        """
-        user_dir = base_emb_dir + '/' + userId
-        user_emb_file = user_dir + emb_file
-        if not os.path.exists(base_emb_dir):
-            os.mkdir(base_emb_dir)
-        if os.path.exists(user_dir):
-            os.mkdir(user_dir)
-        images = face_dist_save.load_and_align_data(faceImages, image_size=160, margin=44, gpu_memory_fraction=0.0)
-        face_dist_save.save_face_emb_info(model=model, image_files=None, emb_file=user_emb_file, aligned_images=images)
-
-        return {'code': 200, 'success': True}
-
     def saveFaceEmb(self, faceImages, userId):
         """
         Parameters:
@@ -53,22 +34,40 @@ class FaceValidateServiceHandler(face_validate_service.Iface):
          - userId
 
         """
-        user_dir = base_emb_dir + '/' + userId
-        user_emb_file = user_dir + emb_file
+        user_dir = base_emb_dir + str(userId)
+        user_emb_file = user_dir + emb_file_suffix
         if not os.path.exists(base_emb_dir):
             os.mkdir(base_emb_dir)
         if os.path.exists(user_dir):
             os.mkdir(user_dir)
-        if os.path.exists(user_emb_file):
-            return {'code': 999, 'success': False, 'message': 'user_emb_file not exist'}
+        images = face_dist_save.load_and_align_data(faceImages, image_size=160, margin=44, gpu_memory_fraction=0.0)
+        face_dist_save.save_face_emb_info(model=model, image_files=faceImages, emb_file=user_emb_file, aligned_images=images)
+
+        return True
+
+    def validateFace(self, faceImages, userId):
+        """
+        Parameters:
+         - faceImages
+         - userId
+
+        """
+        user_dir = base_emb_dir + str(userId)
+        user_emb_file = user_dir + emb_file_suffix
+        if not os.path.exists(base_emb_dir):
+            os.mkdir(base_emb_dir)
+        if os.path.exists(user_dir):
+            os.mkdir(user_dir)
+        if not os.path.exists(user_emb_file):
+            return False
         images = face_validate.load_and_align_data(faceImages, image_size=160, margin=44, gpu_memory_fraction=0.0)
-        result = face_validate.predict_is_same(model=model, image_files=None, emb_file=user_emb_file,
+        result = face_validate.predict_is_same(model=model, image_files=faceImages, emb_file=user_emb_file,
                                                aligned_images=images)
 
         if result:
-            return {'code': 200, 'success': True}
+            return True
         else:
-            return {'code': 999, 'success': False}
+            return False
 
 
 def start():
@@ -80,7 +79,7 @@ def start():
     print("transport : %s init" % transport.__class__.__name__)
     tfactory = TTransport.TFramedTransportFactory()
     print("tfactory : %s init" % tfactory.__class__.__name__)
-    pfactory = TBinaryProtocol(tfactory)
+    pfactory = TBinaryProtocol.TBinaryProtocolFactory()
     print("pfactory : %s init" % pfactory.__class__.__name__)
     server = TServer.TThreadPoolServer(processor, transport, tfactory, pfactory)
     # 开启服务

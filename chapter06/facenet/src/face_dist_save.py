@@ -32,7 +32,7 @@ import numpy as np
 import sys
 import os
 import argparse
-import facenet
+import facenet.src.facenet as facenet
 import facenet.src.align.detect_face as detect_face
 import pickle
 

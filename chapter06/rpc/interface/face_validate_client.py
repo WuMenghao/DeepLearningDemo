@@ -22,6 +22,7 @@ def call_remote_method(client, arg):
         raise Exception('method is not given')
 
     files = os.listdir(face_dir)
+    files = list(map(lambda x: face_dir + '\\' + x, files))
 
     if method == 'saveFaceEmb':
         return client.saveFaceEmb(faceImages=files, userId=user_id)
