@@ -13,7 +13,7 @@ import sys
 def call_remote_method(client, arg):
     method = arg.method
     user_id = arg.user
-    face_dir = arg.face_dir
+    face_dir = arg.face_dir + '\\' + str(user_id)
 
     if not os.path.exists(face_dir):
         raise Exception('face_dir not exist')

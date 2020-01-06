@@ -10,6 +10,8 @@ from __future__ import print_function
 import sys
 import pprint
 import os
+import tensorflow as tf
+import facenet.src.facenet as facenet
 
 from thrift.transport import TSocket, TTransport
 from thrift.server import TServer
@@ -41,7 +43,8 @@ class FaceValidateServiceHandler(face_validate_service.Iface):
         if os.path.exists(user_dir):
             os.mkdir(user_dir)
         images = face_dist_save.load_and_align_data(faceImages, image_size=160, margin=44, gpu_memory_fraction=0.0)
-        face_dist_save.save_face_emb_info(model=model, image_files=faceImages, emb_file=user_emb_file, aligned_images=images)
+        face_dist_save.save_face_emb_info(model=model, image_files=faceImages, emb_file=user_emb_file,
+                                          aligned_images=images)
 
         return True
 
@@ -61,8 +64,8 @@ class FaceValidateServiceHandler(face_validate_service.Iface):
         if not os.path.exists(user_emb_file):
             return False
         images = face_validate.load_and_align_data(faceImages, image_size=160, margin=44, gpu_memory_fraction=0.0)
-        result = face_validate.predict_is_same(model=model, image_files=faceImages, emb_file=user_emb_file,
-                                               aligned_images=images)
+        _, result = face_validate.predict_is_same(model=model, image_files=faceImages, emb_file=user_emb_file,
+                                                  aligned_images=images)
 
         if result:
             return True
