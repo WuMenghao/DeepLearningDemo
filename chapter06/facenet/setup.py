@@ -19,7 +19,7 @@ setup(
     url="https://github.com/WuMenghao/DeepLearningDemo",
     packages=find_packages(),
     install_requires=[
-        "tensorflow <= 1.14.0",
+        "tensorflow < 1.16.0",
         ],
     classifiers=[
         "Topic :: Software Development :: Libraries :: Python Modules",
